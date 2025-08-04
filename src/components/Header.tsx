@@ -1,9 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAuthClick = () => {
+    if (user) {
+      signOut();
+    } else {
+      navigate('/auth');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
@@ -35,12 +54,36 @@ const Header = () => {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" className="text-jobfit-navy">
-              Entrar
-            </Button>
-            <Button variant="hero" size="default">
-              Começar Agora
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-jobfit-navy">
+                    <User className="w-4 h-4 mr-2" />
+                    {user.email}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <User className="w-4 h-4 mr-2" />
+                    Meu Perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" className="text-jobfit-navy" onClick={() => navigate('/auth')}>
+                  Entrar
+                </Button>
+                <Button variant="hero" size="default" onClick={() => navigate('/auth')}>
+                  Começar Agora
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -69,12 +112,30 @@ const Header = () => {
                 Preços
               </a>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="ghost" className="text-jobfit-navy justify-start">
-                  Entrar
-                </Button>
-                <Button variant="hero" size="default">
-                  Começar Agora
-                </Button>
+                {user ? (
+                  <>
+                    <div className="text-sm text-jobfit-gray px-4 py-2">
+                      {user.email}
+                    </div>
+                    <Button variant="ghost" className="text-jobfit-navy justify-start">
+                      <User className="w-4 h-4 mr-2" />
+                      Meu Perfil
+                    </Button>
+                    <Button variant="ghost" className="text-jobfit-navy justify-start" onClick={signOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sair
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="text-jobfit-navy justify-start" onClick={() => navigate('/auth')}>
+                      Entrar
+                    </Button>
+                    <Button variant="hero" size="default" onClick={() => navigate('/auth')}>
+                      Começar Agora
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
