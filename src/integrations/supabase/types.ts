@@ -14,6 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      jobs: {
+        Row: {
+          applications_count: number | null
+          benefits: string[] | null
+          company_id: string
+          created_at: string
+          description: string
+          employment_type: string | null
+          experience_level: string | null
+          id: string
+          location: string | null
+          remote_allowed: boolean | null
+          requirements: string[] | null
+          salary_currency: string | null
+          salary_max: number | null
+          salary_min: number | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          applications_count?: number | null
+          benefits?: string[] | null
+          company_id: string
+          created_at?: string
+          description: string
+          employment_type?: string | null
+          experience_level?: string | null
+          id?: string
+          location?: string | null
+          remote_allowed?: boolean | null
+          requirements?: string[] | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          applications_count?: number | null
+          benefits?: string[] | null
+          company_id?: string
+          created_at?: string
+          description?: string
+          employment_type?: string | null
+          experience_level?: string | null
+          id?: string
+          location?: string | null
+          remote_allowed?: boolean | null
+          requirements?: string[] | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

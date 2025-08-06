@@ -152,7 +152,7 @@ const EmpresaDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" size="lg">
+            <Button className="w-full" size="lg" onClick={() => window.location.href = '/jobs'}>
               Criar Vaga
             </Button>
           </CardContent>
@@ -242,7 +242,7 @@ const CandidatoDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" size="lg">
+            <Button className="w-full" size="lg" onClick={() => window.location.href = '/jobs'}>
               Ver Vagas
             </Button>
           </CardContent>
