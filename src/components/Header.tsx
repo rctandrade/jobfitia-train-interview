@@ -63,9 +63,9 @@ const Header = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     <User className="w-4 h-4 mr-2" />
-                    Meu Perfil
+                    Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
@@ -117,9 +117,9 @@ const Header = () => {
                     <div className="text-sm text-jobfit-gray px-4 py-2">
                       {user.email}
                     </div>
-                    <Button variant="ghost" className="text-jobfit-navy justify-start">
+                    <Button variant="ghost" className="text-jobfit-navy justify-start" onClick={() => navigate('/dashboard')}>
                       <User className="w-4 h-4 mr-2" />
-                      Meu Perfil
+                      Dashboard
                     </Button>
                     <Button variant="ghost" className="text-jobfit-navy justify-start" onClick={signOut}>
                       <LogOut className="w-4 h-4 mr-2" />
