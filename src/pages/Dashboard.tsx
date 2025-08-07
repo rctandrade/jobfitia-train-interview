@@ -72,7 +72,7 @@ const Dashboard = () => {
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => window.location.href = '/profile'}>
             <User className="w-4 h-4 mr-2" />
             Editar Perfil
           </Button>
@@ -259,7 +259,7 @@ const CandidatoDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full" size="lg">
+            <Button variant="outline" className="w-full" size="lg" onClick={() => window.location.href = '/profile'}>
               Editar Perfil
             </Button>
           </CardContent>
