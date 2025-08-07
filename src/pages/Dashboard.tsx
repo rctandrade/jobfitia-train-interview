@@ -169,7 +169,7 @@ const EmpresaDashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full" size="lg">
+            <Button variant="outline" className="w-full" size="lg" onClick={() => window.location.href = '/applications'}>
               Ver Candidatos
             </Button>
           </CardContent>

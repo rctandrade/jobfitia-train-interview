@@ -21,6 +21,7 @@ type JobWithProfile = Database['public']['Tables']['jobs']['Row'] & {
 const Jobs = () => {
   const { user, session } = useAuth();
   const { jobs, loading, fetchJobs, deleteJob } = useJobs();
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [filteredJobs, setFilteredJobs] = useState<JobWithProfile[]>([]);
   const [showJobForm, setShowJobForm] = useState(false);
   const [editingJob, setEditingJob] = useState<JobWithProfile | null>(null);
@@ -32,12 +33,27 @@ const Jobs = () => {
 
   useEffect(() => {
     if (session) {
-      // Get user type from session metadata
-      const userType = session.user?.user_metadata?.user_type || 'candidato';
+      fetchUserProfile();
+    }
+  }, [session]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data } = await import("@/integrations/supabase/client").then(mod => 
+        mod.supabase.from('profiles').select('*').eq('id', user.id).single()
+      );
+      setUserProfile(data);
+      
+      // Get user type and fetch jobs
+      const userType = data?.user_type || 'candidato';
       setUserType(userType);
       fetchJobs(userType);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
-  }, [session, fetchJobs]);
+  };
 
   useEffect(() => {
     let filtered = [...jobs];
@@ -214,6 +230,7 @@ const Jobs = () => {
               onEdit={isCompany ? handleEdit : undefined}
               onDelete={isCompany ? handleDelete : undefined}
               onApply={!isCompany ? handleApply : undefined}
+              userProfile={userProfile}
             />
           ))}
         </div>

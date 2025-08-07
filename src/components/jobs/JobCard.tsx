@@ -1,7 +1,12 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock, DollarSign, Users, MoreHorizontal } from "lucide-react";
+import { ApplyJobModal } from "@/components/applications/ApplyJobModal";
+import { useApplications } from "@/hooks/useApplications";
+import { useAuth } from "@/hooks/useAuth";
+
+import { MapPin, Clock, DollarSign, Users, MoreHorizontal, Send } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -19,6 +24,7 @@ interface JobCardProps {
   onEdit?: (job: JobWithProfile) => void;
   onDelete?: (jobId: string) => void;
   onApply?: (jobId: string) => void;
+  userProfile?: any;
 }
 
 const getEmploymentTypeLabel = (type: string) => {
@@ -51,7 +57,29 @@ const getStatusColor = (status: string) => {
   return colors[status as keyof typeof colors] || 'bg-gray-500';
 };
 
-export const JobCard = ({ job, isCompany = false, onEdit, onDelete, onApply }: JobCardProps) => {
+export const JobCard = ({ job, isCompany = false, onEdit, onDelete, onApply, userProfile }: JobCardProps) => {
+  const { user } = useAuth();
+  const { checkApplicationExists } = useApplications();
+  const [hasApplied, setHasApplied] = useState(false);
+  const [checkingApplication, setCheckingApplication] = useState(false);
+
+  useEffect(() => {
+    if (user && userProfile?.user_type === 'candidato') {
+      checkApplication();
+    }
+  }, [user, job.id, userProfile]);
+
+  const checkApplication = async () => {
+    if (!user) return;
+    setCheckingApplication(true);
+    const exists = await checkApplicationExists(job.id, user.id);
+    setHasApplied(exists);
+    setCheckingApplication(false);
+  };
+
+  const handleApplicationSent = () => {
+    setHasApplied(true);
+  };
   const formatSalary = () => {
     if (!job.salary_min && !job.salary_max) return null;
     
@@ -155,10 +183,25 @@ export const JobCard = ({ job, isCompany = false, onEdit, onDelete, onApply }: J
       </CardContent>
 
       <CardFooter className="pt-4">
-        {!isCompany && onApply && (
-          <Button onClick={() => onApply(job.id)} className="w-full">
-            Candidatar-se
-          </Button>
+        {!isCompany && userProfile?.user_type === 'candidato' && (
+          <div className="w-full">
+            {hasApplied ? (
+              <Button variant="outline" className="w-full" disabled>
+                Já Candidatado
+              </Button>
+            ) : (
+              <ApplyJobModal 
+                jobId={job.id} 
+                jobTitle={job.title}
+                onApplicationSent={handleApplicationSent}
+              >
+                <Button className="w-full" disabled={checkingApplication}>
+                  <Send className="w-4 h-4 mr-2" />
+                  {checkingApplication ? 'Verificando...' : 'Candidatar-se'}
+                </Button>
+              </ApplyJobModal>
+            )}
+          </div>
         )}
         
         {isCompany && (
