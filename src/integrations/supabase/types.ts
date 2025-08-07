@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          applied_at: string
+          candidate_id: string
+          cover_letter: string | null
+          id: string
+          job_id: string
+          match_score: number | null
+          resume_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string
+          candidate_id: string
+          cover_letter?: string | null
+          id?: string
+          job_id: string
+          match_score?: number | null
+          resume_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string
+          candidate_id?: string
+          cover_letter?: string | null
+          id?: string
+          job_id?: string
+          match_score?: number | null
+          resume_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           applications_count: number | null
