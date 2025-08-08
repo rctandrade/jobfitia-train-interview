@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { JobCard } from "@/components/jobs/JobCard";
 import { JobForm } from "@/components/jobs/JobForm";
-import { useJobs } from "@/hooks/useJobs";
+import { JobSearchFilters } from "@/components/jobs/JobSearchFilters";
+import { useJobSearch } from "@/hooks/useJobSearch";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Navigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type JobWithProfile = Database['public']['Tables']['jobs']['Row'] & {
@@ -19,232 +20,173 @@ type JobWithProfile = Database['public']['Tables']['jobs']['Row'] & {
 };
 
 const Jobs = () => {
-  const { user, session } = useAuth();
-  const { jobs, loading, fetchJobs, deleteJob } = useJobs();
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [filteredJobs, setFilteredJobs] = useState<JobWithProfile[]>([]);
+  const { user, loading } = useAuth();
+  const {
+    jobs,
+    filters,
+    updateFilter,
+    clearFilters,
+    loading: jobsLoading,
+    hasActiveFilters,
+    locations,
+    employmentTypes,
+    experienceLevels,
+    totalJobs,
+    filteredCount,
+  } = useJobSearch();
   const [showJobForm, setShowJobForm] = useState(false);
-  const [editingJob, setEditingJob] = useState<JobWithProfile | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [levelFilter, setLevelFilter] = useState("");
-  const [userType, setUserType] = useState<string>("");
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
-    if (session) {
+    if (user) {
       fetchUserProfile();
     }
-  }, [session]);
+  }, [user]);
 
   const fetchUserProfile = async () => {
-    if (!user) return;
-    
     try {
-      const { data } = await import("@/integrations/supabase/client").then(mod => 
-        mod.supabase.from('profiles').select('*').eq('id', user.id).single()
-      );
-      setUserProfile(data);
-      
-      // Get user type and fetch jobs
-      const userType = data?.user_type || 'candidato';
-      setUserType(userType);
-      fetchJobs(userType);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+      } else {
+        setUserProfile(data);
+      }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error:', error);
+    } finally {
+      setProfileLoading(false);
     }
   };
 
-  useEffect(() => {
-    let filtered = [...jobs];
-
-    if (searchTerm) {
-      filtered = filtered.filter(job => 
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (job.profiles?.company_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (locationFilter) {
-      filtered = filtered.filter(job => 
-        job.location?.toLowerCase().includes(locationFilter.toLowerCase()) ||
-        (job.remote_allowed && locationFilter.toLowerCase().includes('remoto'))
-      );
-    }
-
-    if (typeFilter) {
-      filtered = filtered.filter(job => job.employment_type === typeFilter);
-    }
-
-    if (levelFilter) {
-      filtered = filtered.filter(job => job.experience_level === levelFilter);
-    }
-
-    setFilteredJobs(filtered);
-  }, [jobs, searchTerm, locationFilter, typeFilter, levelFilter]);
-
-  const handleEdit = (job: JobWithProfile) => {
-    setEditingJob(job);
-    setShowJobForm(true);
+  const handleJobCreated = () => {
+    setShowJobForm(false);
+    // The useJobSearch hook will automatically refetch data
   };
 
-  const handleDelete = async (jobId: string) => {
-    if (confirm("Tem certeza que deseja excluir esta vaga?")) {
-      await deleteJob(jobId);
-    }
-  };
-
-  const handleApply = (jobId: string) => {
-    // TODO: Implement job application logic
-    console.log("Apply to job:", jobId);
-  };
-
-  const handleFormSuccess = () => {
-    fetchJobs(userType);
-    setEditingJob(null);
-  };
-
-  const isCompany = userType === 'empresa';
-
-  if (loading) {
+  if (loading || profileLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Carregando vagas...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
   }
 
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const isEmpresa = userProfile?.user_type === 'empresa';
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">
-            {isCompany ? "Minhas Vagas" : "Buscar Vagas"}
-          </h1>
-          <p className="text-muted-foreground">
-            {isCompany 
-              ? "Gerencie suas vagas publicadas" 
-              : "Encontre oportunidades que combinam com seu perfil"
-            }
-          </p>
-        </div>
-        
-        {isCompany && (
-          <Button onClick={() => setShowJobForm(true)} className="mt-4 md:mt-0">
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Vaga
-          </Button>
-        )}
-      </div>
-
-      {/* Filters */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center">
-            <Filter className="w-5 h-5 mr-2" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar vagas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            
-            <Input
-              placeholder="Localização..."
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
-            />
-            
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Tipo de contrato" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Todos os tipos</SelectItem>
-                <SelectItem value="full-time">Tempo Integral</SelectItem>
-                <SelectItem value="part-time">Meio Período</SelectItem>
-                <SelectItem value="contract">Contrato</SelectItem>
-                <SelectItem value="internship">Estágio</SelectItem>
-                <SelectItem value="freelance">Freelancer</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={levelFilter} onValueChange={setLevelFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Nível de experiência" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Todos os níveis</SelectItem>
-                <SelectItem value="entry">Júnior</SelectItem>
-                <SelectItem value="mid">Pleno</SelectItem>
-                <SelectItem value="senior">Sênior</SelectItem>
-                <SelectItem value="executive">Executivo</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Jobs Grid */}
-      {filteredJobs.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <h3 className="text-lg font-semibold mb-2">
-              {isCompany ? "Nenhuma vaga encontrada" : "Nenhuma vaga disponível"}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              {isCompany 
-                ? "Você ainda não tem vagas publicadas. Crie sua primeira vaga para começar a atrair candidatos."
-                : "Não encontramos vagas que correspondam aos seus filtros. Tente ajustar os critérios de busca."
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">
+              {isEmpresa ? 'Gerenciar Vagas' : 'Vagas Disponíveis'}
+            </h1>
+            <p className="text-muted-foreground">
+              {isEmpresa 
+                ? 'Crie e gerencie suas oportunidades de trabalho' 
+                : 'Encontre sua próxima oportunidade profissional'
               }
             </p>
-            {isCompany && (
-              <Button onClick={() => setShowJobForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeira Vaga
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              isCompany={isCompany}
-              onEdit={isCompany ? handleEdit : undefined}
-              onDelete={isCompany ? handleDelete : undefined}
-              onApply={!isCompany ? handleApply : undefined}
-              userProfile={userProfile}
-            />
-          ))}
+          </div>
+          {isEmpresa && (
+            <Button onClick={() => setShowJobForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Vaga
+            </Button>
+          )}
         </div>
-      )}
 
-      <JobForm
-        open={showJobForm}
-        onOpenChange={(open) => {
-          setShowJobForm(open);
-          if (!open) setEditingJob(null);
-        }}
-        job={editingJob}
-        onSuccess={handleFormSuccess}
-      />
+        {/* Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
+          {!isEmpresa && (
+            <div className="lg:col-span-1">
+              <JobSearchFilters
+                filters={filters}
+                onFilterChange={updateFilter}
+                onClearFilters={clearFilters}
+                hasActiveFilters={hasActiveFilters}
+                locations={locations}
+                employmentTypes={employmentTypes}
+                experienceLevels={experienceLevels}
+                totalJobs={totalJobs}
+                filteredCount={filteredCount}
+              />
+            </div>
+          )}
+
+          {/* Jobs List */}
+          <div className={isEmpresa ? "lg:col-span-4" : "lg:col-span-3"}>
+            <div className="space-y-6">
+              {jobsLoading ? (
+                <div className="text-center py-8">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Carregando vagas...</p>
+                </div>
+              ) : jobs.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      {isEmpresa 
+                        ? 'Nenhuma vaga criada ainda. Clique em "Nova Vaga" para começar.' 
+                        : hasActiveFilters
+                          ? 'Nenhuma vaga encontrada com os filtros aplicados. Tente ajustar os critérios de busca.'
+                          : 'Nenhuma vaga disponível no momento.'
+                      }
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                jobs.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    isCompany={isEmpresa}
+                    userProfile={userProfile}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Job Form Modal */}
+        {showJobForm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-background rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold">Criar Nova Vaga</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowJobForm(false)}
+                >
+                  ✕
+                </Button>
+              </div>
+              <JobForm 
+                open={showJobForm}
+                onOpenChange={setShowJobForm}
+                onSuccess={handleJobCreated} 
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
