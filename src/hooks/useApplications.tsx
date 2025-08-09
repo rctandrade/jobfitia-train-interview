@@ -70,9 +70,23 @@ export const useApplications = () => {
 
       if (error) throw error;
 
+      // Trigger AI matching calculation automatically
+      try {
+        await supabase.functions.invoke('ai-matching', {
+          body: {
+            applicationId: data.id,
+            jobId: applicationData.job_id,
+            candidateId: applicationData.candidate_id,
+          },
+        });
+      } catch (matchingError) {
+        console.error('Error triggering AI matching:', matchingError);
+        // Don't fail the application creation if matching fails
+      }
+
       toast({
         title: "Candidatura enviada!",
-        description: "Sua candidatura foi enviada com sucesso.",
+        description: "Sua candidatura foi enviada com sucesso. A análise de compatibilidade será processada em breve.",
       });
 
       return { data, error: null };

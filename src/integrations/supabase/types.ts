@@ -126,8 +126,12 @@ export type Database = {
           company_size: string | null
           created_at: string
           display_name: string | null
+          experience_years: number | null
           id: string
           location: string | null
+          preferred_salary_max: number | null
+          preferred_salary_min: number | null
+          skills: string[] | null
           updated_at: string
           user_type: string | null
         }
@@ -138,8 +142,12 @@ export type Database = {
           company_size?: string | null
           created_at?: string
           display_name?: string | null
+          experience_years?: number | null
           id: string
           location?: string | null
+          preferred_salary_max?: number | null
+          preferred_salary_min?: number | null
+          skills?: string[] | null
           updated_at?: string
           user_type?: string | null
         }
@@ -150,8 +158,12 @@ export type Database = {
           company_size?: string | null
           created_at?: string
           display_name?: string | null
+          experience_years?: number | null
           id?: string
           location?: string | null
+          preferred_salary_max?: number | null
+          preferred_salary_min?: number | null
+          skills?: string[] | null
           updated_at?: string
           user_type?: string | null
         }

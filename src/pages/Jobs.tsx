@@ -4,7 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { JobCard } from "@/components/jobs/JobCard";
 import { JobForm } from "@/components/jobs/JobForm";
 import { JobSearchFilters } from "@/components/jobs/JobSearchFilters";
+import { MatchingInsights } from "@/components/matching/MatchingInsights";
 import { useJobSearch } from "@/hooks/useJobSearch";
+import { useAIMatching } from "@/hooks/useAIMatching";
 import { useAuth } from "@/hooks/useAuth";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,9 +36,11 @@ const Jobs = () => {
     totalJobs,
     filteredCount,
   } = useJobSearch();
+  const { bulkCalculateMatches } = useAIMatching();
   const [showJobForm, setShowJobForm] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [selectedJobInsights, setSelectedJobInsights] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -67,6 +71,21 @@ const Jobs = () => {
   const handleJobCreated = () => {
     setShowJobForm(false);
     // The useJobSearch hook will automatically refetch data
+  };
+
+  const handleCalculateAllMatches = async (jobId: string) => {
+    // Fetch applications for this job
+    const { data: applications } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('job_id', jobId);
+
+    if (applications) {
+      await bulkCalculateMatches(applications);
+      // Refresh insights
+      setSelectedJobInsights(null);
+      setTimeout(() => setSelectedJobInsights(jobId), 100);
+    }
   };
 
   if (loading || profileLoading) {
@@ -152,12 +171,20 @@ const Jobs = () => {
                 </Card>
               ) : (
                 jobs.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    isCompany={isEmpresa}
-                    userProfile={userProfile}
-                  />
+                  <div key={job.id} className="space-y-4">
+                    <JobCard
+                      job={job}
+                      isCompany={isEmpresa}
+                      userProfile={userProfile}
+                      onViewInsights={isEmpresa ? () => setSelectedJobInsights(job.id) : undefined}
+                    />
+                    {selectedJobInsights === job.id && isEmpresa && (
+                      <MatchingInsights 
+                        jobId={job.id} 
+                        onCalculateAll={() => handleCalculateAllMatches(job.id)}
+                      />
+                    )}
+                  </div>
                 ))
               )}
             </div>

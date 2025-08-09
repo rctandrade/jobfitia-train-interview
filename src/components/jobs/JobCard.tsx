@@ -6,7 +6,7 @@ import { ApplyJobModal } from "@/components/applications/ApplyJobModal";
 import { useApplications } from "@/hooks/useApplications";
 import { useAuth } from "@/hooks/useAuth";
 
-import { MapPin, Clock, DollarSign, Users, MoreHorizontal, Send } from "lucide-react";
+import { MapPin, Clock, DollarSign, Users, MoreHorizontal, Send, Brain } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -24,6 +24,7 @@ interface JobCardProps {
   onEdit?: (job: JobWithProfile) => void;
   onDelete?: (jobId: string) => void;
   onApply?: (jobId: string) => void;
+  onViewInsights?: () => void;
   userProfile?: any;
 }
 
@@ -57,7 +58,7 @@ const getStatusColor = (status: string) => {
   return colors[status as keyof typeof colors] || 'bg-gray-500';
 };
 
-export const JobCard = ({ job, isCompany = false, onEdit, onDelete, onApply, userProfile }: JobCardProps) => {
+export const JobCard = ({ job, isCompany = false, onEdit, onDelete, onApply, onViewInsights, userProfile }: JobCardProps) => {
   const { user } = useAuth();
   const { checkApplicationExists } = useApplications();
   const [hasApplied, setHasApplied] = useState(false);
@@ -117,6 +118,10 @@ export const JobCard = ({ job, isCompany = false, onEdit, onDelete, onApply, use
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(job)}>
                   Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onViewInsights?.()}>
+                  <Brain className="h-4 w-4 mr-2" />
+                  Ver Insights IA
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onDelete(job.id)} className="text-destructive">
                   Excluir
