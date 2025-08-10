@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { useSmartAuth } from './useSmartAuth';
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { classifyAndCreateProfile } = useSmartAuth();
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -30,11 +32,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Bem-vindo ao JobFit IA",
-          });
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Check if this is a social login (Google/Facebook)
+          const isSocialLogin = session.user.app_metadata?.provider && 
+                               ['google', 'facebook'].includes(session.user.app_metadata.provider);
+          
+          if (isSocialLogin) {
+            // Use smart auth for social logins
+            setTimeout(() => {
+              classifyAndCreateProfile(session.user);
+            }, 0);
+          } else {
+            toast({
+              title: "Login realizado com sucesso!",
+              description: "Bem-vindo ao JobFit IA",
+            });
+          }
         } else if (event === 'SIGNED_OUT') {
           toast({
             title: "Logout realizado",

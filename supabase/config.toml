@@ -32,6 +32,9 @@ major_version = 15
 [functions.ai-matching]
 verify_jwt = false
 
+[functions.smart-social-auth]
+verify_jwt = false
+
 [studio]
 enabled = true
 port = 54323
