@@ -125,8 +125,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
           toast({
-            title: "Erro no login",
-            description: "Email ou senha incorretos.",
+            title: "Credenciais inválidas",
+            description: "Email ou senha incorretos. Verifique seus dados ou cadastre-se se ainda não tem conta.",
+            variant: "destructive",
+          });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: "Email não confirmado",
+            description: "Verifique seu email e clique no link de confirmação.",
             variant: "destructive",
           });
         } else {

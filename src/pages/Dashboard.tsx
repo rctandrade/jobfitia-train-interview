@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, Briefcase, Target, Plus, User } from "lucide-react";
+import { CandidateDashboard } from '@/components/dashboard/CandidateDashboard';
 
 const Dashboard = () => {
   const { user, loading } = useAuth();
@@ -82,7 +83,7 @@ const Dashboard = () => {
         {isEmpresa ? (
           <EmpresaDashboard />
         ) : (
-          <CandidatoDashboard />
+          <CandidateDashboard />
         )}
       </div>
     </div>
@@ -171,96 +172,6 @@ const EmpresaDashboard = () => {
           <CardContent>
             <Button variant="outline" className="w-full" size="lg" onClick={() => window.location.href = '/applications'}>
               Ver Candidatos
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-const CandidatoDashboard = () => {
-  return (
-    <div className="space-y-8">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Candidaturas</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Candidaturas enviadas</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Matches</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Vagas compatíveis</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Perfil</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">60%</div>
-            <p className="text-xs text-muted-foreground">Completude do perfil</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Respostas</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Empresas interessadas</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Target className="w-5 h-5 mr-2" />
-              Vagas Recomendadas
-            </CardTitle>
-            <CardDescription>
-              Vagas que combinam com seu perfil e experiência
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" size="lg" onClick={() => window.location.href = '/jobs'}>
-              Ver Vagas
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <User className="w-5 h-5 mr-2" />
-              Completar Perfil
-            </CardTitle>
-            <CardDescription>
-              Complete seu perfil para receber melhores recomendações
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full" size="lg" onClick={() => window.location.href = '/profile'}>
-              Editar Perfil
             </Button>
           </CardContent>
         </Card>
