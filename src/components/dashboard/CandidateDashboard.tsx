@@ -354,6 +354,37 @@ export const CandidateDashboard = () => {
         </Card>
       </div>
 
+      {/* AI Career Coach */}
+      <Card className="bg-gradient-to-r from-primary/10 to-secondary/20 border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center text-primary">
+            <Target className="w-5 h-5 mr-2" />
+            IA Career Coach
+          </CardTitle>
+          <CardDescription>
+            Trilhas personalizadas e simulação de entrevistas com inteligência artificial
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">
+                🚀 Acelere seu desenvolvimento profissional
+              </p>
+              <p className="text-sm text-muted-foreground">
+                ✨ Trilhas personalizadas baseadas em IA
+              </p>
+              <p className="text-sm text-muted-foreground">
+                🎯 Simulação de entrevistas com feedback
+              </p>
+            </div>
+            <Button onClick={() => window.location.href = '/career'} className="ml-4">
+              Acessar Coach
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Profile Completion Prompt */}
       {stats.profileCompletion < 80 && (
         <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
