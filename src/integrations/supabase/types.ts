@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -168,6 +168,76 @@ export type Database = {
           user_type?: string | null
         }
         Relationships: []
+      }
+      training_modules: {
+        Row: {
+          content: Json | null
+          created_at: string
+          id: string
+          module_order: number
+          module_type: string | null
+          plan_id: string
+          title: string
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string
+          id?: string
+          module_order: number
+          module_type?: string | null
+          plan_id: string
+          title: string
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string
+          id?: string
+          module_order?: number
+          module_type?: string | null
+          plan_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_modules_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "training_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          job_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          job_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          job_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_plans_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
