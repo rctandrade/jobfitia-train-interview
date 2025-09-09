@@ -38,18 +38,37 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#como-funciona" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-              Como Funciona
-            </a>
-            <a href="#empresas" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-              Para Empresas
-            </a>
-            <a href="#candidatos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-              Para Candidatos
-            </a>
-            <a href="#precos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-              Preços
-            </a>
+            {user ? (
+              <>
+                <a href="/jobs" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Vagas
+                </a>
+                <a href="/applications" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Candidaturas
+                </a>
+                <a href="/profile" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Perfil
+                </a>
+                <a href="/career" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Career Coach
+                </a>
+              </>
+            ) : (
+              <>
+                <a href="#como-funciona" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Como Funciona
+                </a>
+                <a href="#empresas" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Para Empresas
+                </a>
+                <a href="#candidatos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Para Candidatos
+                </a>
+                <a href="#precos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                  Preços
+                </a>
+              </>
+            )}
           </nav>
 
           {/* Desktop CTAs */}
@@ -99,18 +118,38 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
             <nav className="flex flex-col space-y-4">
-              <a href="#como-funciona" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-                Como Funciona
-              </a>
-              <a href="#empresas" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-                Para Empresas
-              </a>
-              <a href="#candidatos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-                Para Candidatos
-              </a>
-              <a href="#precos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
-                Preços
-              </a>
+              {user ? (
+                <>
+                  <a href="/jobs" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Vagas
+                  </a>
+                  <a href="/applications" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Candidaturas
+                  </a>
+                  <a href="/profile" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Perfil
+                  </a>
+                  <a href="/career" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Career Coach
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a href="#como-funciona" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Como Funciona
+                  </a>
+                  <a href="#empresas" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Para Empresas
+                  </a>
+                  <a href="#candidatos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Para Candidatos
+                  </a>
+                  <a href="#precos" className="text-jobfit-gray hover:text-jobfit-navy transition-colors">
+                    Preços
+                  </a>
+                </>
+              )}
+            </nav>
               <div className="flex flex-col space-y-2 pt-4">
                 {user ? (
                   <>
@@ -137,7 +176,6 @@ const Header = () => {
                   </>
                 )}
               </div>
-            </nav>
           </div>
         )}
       </div>
